@@ -16,7 +16,6 @@
 #define COLS 10
 int grid[ROWS][COLS] = {0};
 bool game_end = false;
-// bool collision = false;
 bool landded = true;
 
 int o_block[2][2] = {{1, 1}, {1, 1}};
@@ -30,13 +29,44 @@ int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
 // TODO:
 /*
     // dodati neki block observer
-    // kad se block spusti, droppaj sljedeci, tj.ponovi loop
-
  */
+
+void update_grid()
+{
+    sleep(1);
+    for (int i = 0; i < ROWS; ++i)
+    {
+        for (int j = 0; j < COLS; ++j)
+        {
+            printf("%d ", grid[i][j]);
+            /*if (grid[j][i] == 0)
+            {
+                printf("%c", 254);
+            }*/
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 bool check_collision()
 {
-    return false;
+    bool collision = false;
+
+    // collision check goes here
+
+    if (collision == true)
+    {
+        landded = true;
+    }
+    else
+    {
+        landded = false;
+    }
+
+    return collision;
+    // trebat ce landed na kraju postati true;
+    // kada se spusti do kraja block onda 1 promijeni u 2
 }
 
 void if_block_drop()
@@ -50,6 +80,7 @@ void if_block_drop()
                 grid[i + 1][j] = grid[i][j];
                 grid[i][j] = 0;
             }
+            // treba nadodati neki else.
         }
     }
 }
@@ -58,9 +89,6 @@ void if_block_drop()
 void add_block(int *block, int row_num, int col_num)
 {
     //*((arr+i*n) + j)
-    // for petlja za init cijelog bloka
-    // ovo dolje samo inita zadnji red. treba pomaknuti red za 1 red dolje i initat sljedeci
-    // for (int i = row_num - 1; i > row_num - 2; i--)
     for (int i = row_num - 1; i > -1; i--)
     {
         if_block_drop();
@@ -73,43 +101,15 @@ void add_block(int *block, int row_num, int col_num)
             }*/
         }
 
-        // print updated grid
-        for (int i = 0; i < ROWS; ++i)
-        {
-            for (int j = 0; j < COLS; ++j)
-            {
-                printf("%d ", grid[i][j]);
-                /*if (grid[j][i] == 0)
-                {
-                    printf("%c", 254);
-                }*/
-            }
-            printf("\n");
-        }
-        printf("\n");
+        /////////print updated grid
+        update_grid();
     }
-    sleep(1);
-
-    // reset grid
-    /*for (int i = 0; i < ROWS; ++i)
-    {
-        for (int j = 0; j < COLS; ++j)
-        {
-            grid[i][j] = 0;
-        }
-    }*/
-
-    /*
-    while (block_at_bottom == false)
-    {
-        drop_down();
-    }*/
 }
 
 void run()
 {
     // if statements koji podesavaju usmjerenje i brzinu spustanja
-    // srand(time(NULL));
+    srand(time(0));
     if (landded == true)
     {
         landded = false;
@@ -143,6 +143,12 @@ void run()
             break;
         }
     }
+
+    while (check_collision() == false)
+    {
+        if_block_drop();
+        update_grid();
+    }
 }
 
 void start_game()
@@ -171,6 +177,7 @@ int main()
         }
         printf("\n");
     }
+    printf("\n");
 
     start_game();
     printf("%s", "game endded");
