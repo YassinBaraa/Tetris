@@ -12,7 +12,7 @@
 */
 
 // GLOBAL VARIABLES
-#define ROWS 20
+#define ROWS 10 /*20 */
 #define COLS 10
 int grid[ROWS][COLS] = {0};
 bool game_end = false;
@@ -29,6 +29,7 @@ int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
 // TODO:
 /*
     // dodati neki block observer
+    //nacin da zadrzim shape blocka
  */
 
 void update_grid()
@@ -54,14 +55,27 @@ bool check_collision()
     bool collision = false;
 
     // collision check goes here
+    for (int i = ROWS - 1; i > -1; i--)
+    {
+        for (int j = COLS - 1; j > -1; j--)
+        {
+            // stop if you touch a landed block                              stop if you are at the end of grid
+            if ((i != ROWS - 1 && grid[i][j] == 1 && grid[i + 1][j] == 2) || (grid[i][j] == 1 && i == ROWS - 1))
+            {
+                // problem 1: block parts fall through like sand
+
+                // ako dira ijednu granicu postani 2
+                // ako lijevi ili desni susjed dira granicu i ispod nema nula postani 2
+                collision = true;
+                //   jedinice treba pretvoriti u dvojke
+                grid[i][j] = 2;
+            }
+        }
+    }
 
     if (collision == true)
     {
         landded = true;
-    }
-    else
-    {
-        landded = false;
     }
 
     return collision;
