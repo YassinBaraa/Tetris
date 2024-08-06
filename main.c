@@ -17,6 +17,7 @@
 int grid[ROWS][COLS] = {0};
 bool game_end = false;
 bool landded = true;
+bool collision = false;
 
 int o_block[2][2] = {{1, 1}, {1, 1}};
 int i_block[4][1] = {{1}, {1}, {1}, {1}};
@@ -50,9 +51,23 @@ void update_grid()
     printf("\n");
 }
 
+void turn_all_ones_into_twos()
+{
+    for (int i = ROWS - 1; i > -1; i--)
+    {
+        for (int j = COLS - 1; j > -1; j--)
+        {
+            if (grid[i][j] == 1)
+            {
+                grid[i + 1][j] = 2;
+                grid[i][j] = 0;
+            }
+        }
+    }
+}
+
 bool check_collision()
 {
-    bool collision = false;
 
     // collision check goes here
     for (int i = ROWS - 1; i > -1; i--)
@@ -63,22 +78,21 @@ bool check_collision()
             if ((i != ROWS - 1 && grid[i][j] == 1 && grid[i + 1][j] == 2) || (grid[i][j] == 1 && i == ROWS - 1))
             {
                 // problem 1: block parts fall through like sand
+                // problem 2 : landing the blocks without footing
 
                 // ako dira ijednu granicu postani 2
                 // ako lijevi ili desni susjed dira granicu i ispod nema nula postani 2
-                collision = true;
-                //   jedinice treba pretvoriti u dvojke
                 grid[i][j] = 2;
+                turn_all_ones_into_twos();
+                landded = true;
+                collision = true;
+                return collision;
             }
         }
     }
 
-    if (collision == true)
-    {
-        landded = true;
-    }
-
-    return collision;
+    collision = false;
+    return false;
     // trebat ce landed na kraju postati true;
     // kada se spusti do kraja block onda 1 promijeni u 2
 }
@@ -89,7 +103,7 @@ void if_block_drop()
     {
         for (int j = COLS - 1; j > -1; j--)
         {
-            if (grid[i][j] == 1 && check_collision() == false)
+            if (grid[i][j] == 1 && check_collision() == false /* && grid[i + 1][j] != 2 && grid[i + 1][j] != ROWS - 1*/)
             {
                 grid[i + 1][j] = grid[i][j];
                 grid[i][j] = 0;
@@ -126,6 +140,7 @@ void run()
     srand(time(0));
     if (landded == true)
     {
+        printf("add block\n");
         landded = false;
         int value = rand() % (6 - 0 + 1) + 0;
         // printf("%d\n", value);
@@ -158,16 +173,18 @@ void run()
         }
     }
 
-    while (check_collision() == false)
+    while (collision == false)
     {
         if_block_drop();
         update_grid();
     }
+    printf("left\n");
 }
 
 void start_game()
 {
     while (game_end == false) // podesiti condition da se zaustavi kada je predena granica
+    // dodati function za uvijet check_game_end
     {
         run();
     }
