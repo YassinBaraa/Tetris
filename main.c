@@ -11,6 +11,12 @@
     2   landded block
 */
 
+// TODO:
+// game_end detection
+// moving pieces right and left
+// score count
+// frontend
+
 // GLOBAL VARIABLES
 #define ROWS 10 /*20 */
 #define COLS 10
@@ -40,11 +46,15 @@ void update_grid()
     {
         for (int j = 0; j < COLS; ++j)
         {
-            printf("%d ", grid[i][j]);
-            /*if (grid[j][i] == 0)
+            // printf("%d ", grid[i][j]);
+            if (grid[i][j] == 0)
             {
-                printf("%c", 254);
-            }*/
+                printf("%c ", 35);
+            }
+            else
+            {
+                printf("%c ", 254);
+            }
         }
         printf("\n");
     }
@@ -116,7 +126,8 @@ void add_block(int *block, int row_num, int col_num)
         if_block_drop();
         for (int j = col_num - 1; j > -1; j--)
         {
-            grid[0][4 + j] = *((block + i * col_num) + j);
+            // grid[0][4 + j] = *((block + i * col_num) + j);
+            grid[0][(ROWS / 2) - 1 + j] = *((block + i * col_num) + j);
             /*if (check_collision() == true)
             {
                 return;
@@ -134,7 +145,6 @@ void run()
     srand(time(0));
     if (landded == true)
     {
-        printf("add block\n");
         landded = false;
         int value = rand() % (6 - 0 + 1) + 0;
         // printf("%d\n", value);
@@ -172,7 +182,6 @@ void run()
         if_block_drop();
         update_grid();
     }
-    printf("left\n");
 }
 
 void start_game()
@@ -189,20 +198,7 @@ int main()
 {
     // displaying the layout grid
     printf("======= TETRIS=======\n");
-
-    for (int i = 0; i < ROWS; ++i)
-    {
-        for (int j = 0; j < COLS; ++j)
-        {
-            printf("%d ", grid[i][j]);
-            /*if (grid[i][j] == 0)
-            {
-                printf("%c", 254);
-            }*/
-        }
-        printf("\n");
-    }
-    printf("\n");
+    update_grid();
 
     start_game();
     printf("%s", "game endded");
