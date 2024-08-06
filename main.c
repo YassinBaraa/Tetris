@@ -77,11 +77,7 @@ bool check_collision()
             // stop if you touch a landed block                              stop if you are at the end of grid
             if ((i != ROWS - 1 && grid[i][j] == 1 && grid[i + 1][j] == 2) || (grid[i][j] == 1 && i == ROWS - 1))
             {
-                // problem 1: block parts fall through like sand
                 // problem 2 : landing the blocks without footing
-
-                // ako dira ijednu granicu postani 2
-                // ako lijevi ili desni susjed dira granicu i ispod nema nula postani 2
                 grid[i][j] = 2;
                 turn_all_ones_into_twos();
                 landded = true;
@@ -93,8 +89,6 @@ bool check_collision()
 
     collision = false;
     return false;
-    // trebat ce landed na kraju postati true;
-    // kada se spusti do kraja block onda 1 promijeni u 2
 }
 
 void if_block_drop()
