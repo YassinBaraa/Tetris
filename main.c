@@ -14,15 +14,18 @@
 // TODO:
 // delete row after tetris = DONE
 // game_end detection = DONE
-// pieces rotation
+// score count = DONE
+
 // moving pieces right and left
-// score count
+// pieces rotation
 // frontend
 
 // GLOBAL VARIABLES
 #define ROWS 5 /*20 */
 #define COLS 10
 int grid[ROWS][COLS] = {0};
+int score = 0;
+int multiplier = 1;
 bool landded = true;
 bool collision = false;
 bool game_end = false;
@@ -47,6 +50,28 @@ int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
     return false;
 }*/
 
+void calculate_points()
+{
+    if (score >= 1000)
+    {
+        multiplier = 1.25;
+    }
+    else if (score >= 2500)
+    {
+        multiplier = 1.25;
+    }
+    else if (score >= 5000)
+    {
+        multiplier = 1.5;
+    }
+    else
+    {
+        multiplier = 1.5;
+    }
+    score += 100 * multiplier;
+    printf("+100 points\n");
+}
+
 void tetris_check()
 {
     bool tetris = true;
@@ -61,7 +86,7 @@ void tetris_check()
     if (tetris == true)
     {
         printf("TETRIS\n");
-        printf("+100 points\n");
+        calculate_points();
         for (int i = ROWS - 1; i > -1; i--)
         {
             for (int j = COLS - 1; j > -1; j--)
@@ -95,7 +120,7 @@ void update_grid()
         }
         printf("\n");
     }
-    printf("\n");
+    printf("SCORE: %d \n", score);
 }
 
 void turn_all_ones_into_twos()
@@ -242,15 +267,16 @@ int main()
     printf("======= TETRIS=======\n");
     update_grid();
 
-    // tetris test zadnji red je pun
-    for (int i = ROWS - 1; i > ROWS - 2; i--)
-    {
-        for (int j = COLS - 1; j > -1; j--)
+    /*
+        // tetris test zadnji red je pun
+        for (int i = ROWS - 1; i > ROWS - 2; i--)
         {
-            grid[i][j] = 2;
+            for (int j = COLS - 1; j > -1; j--)
+            {
+                grid[i][j] = 2;
+            }
         }
-    }
-
+    */
     start_game();
     printf("%s", "game endded");
 }
