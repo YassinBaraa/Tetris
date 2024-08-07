@@ -12,18 +12,20 @@
 */
 
 // TODO:
-// game_end detection
+// delete row after tetris = DONE
+// game_end detection = DONE
+// pieces rotation
 // moving pieces right and left
 // score count
 // frontend
 
 // GLOBAL VARIABLES
-#define ROWS 10 /*20 */
+#define ROWS 5 /*20 */
 #define COLS 10
 int grid[ROWS][COLS] = {0};
-bool game_end = false;
 bool landded = true;
 bool collision = false;
+bool game_end = false;
 
 int o_block[2][2] = {{1, 1}, {1, 1}};
 int i_block[4][1] = {{1}, {1}, {1}, {1}};
@@ -33,11 +35,46 @@ int l_block[3][2] = {{1, 0}, {1, 0}, {1, 1}};
 int j_block[3][2] = {{0, 1}, {0, 1}, {1, 1}};
 int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
 
-// TODO:
-/*
-    // dodati neki block observer
-    //nacin da zadrzim shape blocka
- */
+/*bool game_end()
+{
+    for (int j = 0; j < COLS; ++j)
+    {
+        if (grid[ROWS - 1][j] == 2)
+        {
+            return true;
+        }
+    }
+    return false;
+}*/
+
+void tetris_check()
+{
+    bool tetris = true;
+    for (int j = 0; j < COLS; ++j)
+    {
+        if (grid[ROWS - 1][j] == 0)
+        {
+            tetris = false;
+        }
+    }
+
+    if (tetris == true)
+    {
+        printf("TETRIS\n");
+        printf("+100 points\n");
+        for (int i = ROWS - 1; i > -1; i--)
+        {
+            for (int j = COLS - 1; j > -1; j--)
+            {
+                if (grid[i][j] == 2)
+                {
+                    grid[i + 1][j] = grid[i][j];
+                    grid[i][j] = 0;
+                }
+            }
+        }
+    }
+}
 
 void update_grid()
 {
@@ -126,12 +163,16 @@ void add_block(int *block, int row_num, int col_num)
         if_block_drop();
         for (int j = col_num - 1; j > -1; j--)
         {
-            // grid[0][4 + j] = *((block + i * col_num) + j);
-            grid[0][(ROWS / 2) - 1 + j] = *((block + i * col_num) + j);
-            /*if (check_collision() == true)
+            if (grid[0][(COLS / 2) - 1 + j] == 2)
             {
+                game_end = true;
                 return;
-            }*/
+            }
+            else
+            {
+                // grid[0][4 + j] = *((block + i * col_num) + j);
+                grid[0][(COLS / 2) - 1 + j] = *((block + i * col_num) + j);
+            }
         }
 
         /////////print updated grid
@@ -180,6 +221,7 @@ void run()
     while (collision == false)
     {
         if_block_drop();
+        tetris_check();
         update_grid();
     }
 }
@@ -199,6 +241,15 @@ int main()
     // displaying the layout grid
     printf("======= TETRIS=======\n");
     update_grid();
+
+    // tetris test zadnji red je pun
+    for (int i = ROWS - 1; i > ROWS - 2; i--)
+    {
+        for (int j = COLS - 1; j > -1; j--)
+        {
+            grid[i][j] = 2;
+        }
+    }
 
     start_game();
     printf("%s", "game endded");
