@@ -45,6 +45,36 @@ int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
 void update_grid(HWND hwnd);
 void start_game(HWND hwnd);
 
+void move_left()
+{
+    for (int i = 0; i < ROWS; ++i)
+    {
+        for (int j = 1; j < COLS; ++j)
+        {
+            if (grid[i][j] == 1 && grid[i][j - 1] == 0)
+            {
+                grid[i][j - 1] = 1;
+                grid[i][j] = 0;
+            }
+        }
+    }
+}
+
+void move_right()
+{
+    for (int i = 0; i < ROWS; ++i)
+    {
+        for (int j = COLS - 2; j > -1; j--)
+        {
+            if (grid[i][j] == 1 && grid[i][j + 1] == 0)
+            {
+                grid[i][j + 1] = 1;
+                grid[i][j] = 0;
+            }
+        }
+    }
+}
+
 void calculate_points()
 {
     if (score >= 1000)
@@ -64,7 +94,6 @@ void calculate_points()
         multiplier = 1.5;
     }
     score += 100 * multiplier;
-    // printf("+100 points\n");
 }
 
 void tetris_check()
@@ -222,12 +251,23 @@ void run(HWND hwnd)
     }
 }
 
-void start_game(HWND hwnd)
+/*void start_game(HWND hwnd)
 {
+
     while (!game_end)
     {
         run(hwnd);
     }
+}*/
+
+void start_game(HWND hwnd)
+{
+    SetTimer(hwnd, 1, 1000, NULL); // Set up a timer with a 1-second interval
+}
+
+void stop_game(HWND hwnd)
+{
+    KillTimer(hwnd, 1); // Stop the timer when the game ends
 }
 
 // Step 4: the Window Procedure
@@ -241,7 +281,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
-    case WM_PAINT:
+    case WM_PAINT: // case for creating the grid in window
     {
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
@@ -281,6 +321,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         EndPaint(hwnd, &ps);
     }
     break;
+    case WM_KEYDOWN:           // keyboard listener
+        if (wParam == VK_LEFT) // left arrow key
+        {
+            move_left();
+        }
+        else if (wParam == VK_RIGHT) // right arrow key
+        {
+            move_right();
+        }
+        else if (wParam == VK_DOWN) // down arrow key
+        {
+            // move_down();
+        }
+        // InvalidateRect(hwnd, NULL, TRUE);
+        update_grid(hwnd);
+        break;
+    case WM_TIMER: // timer separate game logic from the message loop
+        if (!game_end)
+        {
+            run(hwnd);
+        }
+        else
+        {
+            stop_game(hwnd);
+        }
+        break;
     default:
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
@@ -352,5 +418,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     return Msg.wParam;
 }
-// gcc -o tetris_window windows.c -lgdi32
-//.\tetris_window.exe
+// compile and run:
+//  gcc -o tetris_window windows.c -lgdi32
+// .\tetris_window.exe
