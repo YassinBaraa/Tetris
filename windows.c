@@ -10,13 +10,14 @@ const char g_szClassName[] = "myWindowClass";
 // delete row after tetris = DONE
 // game_end detection = DONE
 // score count = DONE
-
-// moving pieces right and left
-// pieces rotation
+// moving pieces right and left = DONE
 // frontend = DONE-ish
+// Seperate game logic from message loop = DONE
+//  pieces rotation
 
 // PROBLEMS:
-//  S blocks fall like sand sometimes
+//  colission detection algorthm needs to look at the entire piece at once not bit by bit.
+//          because it searches one bit by bit part of the block falls through
 
 /*GRID CONFIG:
     0   empty space
@@ -44,86 +45,8 @@ int t_block[2][3] = {{1, 1, 1}, {0, 1, 0}};
 // Forward declarations
 void update_grid(HWND hwnd);
 void start_game(HWND hwnd);
-
-void move_left()
-{
-    for (int i = 0; i < ROWS; ++i)
-    {
-        for (int j = 1; j < COLS; ++j)
-        {
-            if (grid[i][j] == 1 && grid[i][j - 1] == 0)
-            {
-                grid[i][j - 1] = 1;
-                grid[i][j] = 0;
-            }
-        }
-    }
-}
-
-void move_right()
-{
-    for (int i = 0; i < ROWS; ++i)
-    {
-        for (int j = COLS - 2; j > -1; j--)
-        {
-            if (grid[i][j] == 1 && grid[i][j + 1] == 0)
-            {
-                grid[i][j + 1] = 1;
-                grid[i][j] = 0;
-            }
-        }
-    }
-}
-
-void calculate_points()
-{
-    if (score >= 1000)
-    {
-        multiplier = 1.25;
-    }
-    else if (score >= 2500)
-    {
-        multiplier = 1.25;
-    }
-    else if (score >= 5000)
-    {
-        multiplier = 1.5;
-    }
-    else
-    {
-        multiplier = 1.5;
-    }
-    score += 100 * multiplier;
-}
-
-void tetris_check()
-{
-    bool tetris = true;
-    for (int j = 0; j < COLS; ++j)
-    {
-        if (grid[ROWS - 1][j] == 0)
-        {
-            tetris = false;
-        }
-    }
-
-    if (tetris == true)
-    {
-        printf("TETRIS\n");
-        calculate_points();
-        for (int i = ROWS - 1; i > -1; i--)
-        {
-            for (int j = COLS - 1; j > -1; j--)
-            {
-                if (grid[i][j] == 2)
-                {
-                    grid[i + 1][j] = grid[i][j];
-                    grid[i][j] = 0;
-                }
-            }
-        }
-    }
-}
+void stop_game(HWND hwnd);
+void run(HWND hwnd);
 
 void turn_all_ones_into_twos()
 {
@@ -163,6 +86,86 @@ bool check_collision()
 
     collision = false;
     return false;
+}
+
+void move_left()
+{
+    for (int i = 0; i < ROWS; ++i)
+    {
+        for (int j = 1; j < COLS; ++j)
+        {
+            if (grid[i][j] == 1 && grid[i][j - 1] == 0 && !check_collision())
+            {
+                grid[i][j - 1] = 1;
+                grid[i][j] = 0;
+            }
+        }
+    }
+}
+
+void move_right()
+{
+    for (int i = 0; i < ROWS; ++i)
+    {
+        for (int j = COLS - 2; j > -1; j--)
+        {
+            if (grid[i][j] == 1 && grid[i][j + 1] == 0 && !check_collision())
+            {
+                grid[i][j + 1] = 1;
+                grid[i][j] = 0;
+            }
+        }
+    }
+}
+
+void calculate_points()
+{
+    if (score >= 5000)
+    {
+        multiplier = 1.5;
+    }
+    else if (score >= 2500)
+    {
+        multiplier = 1.25;
+    }
+    else if (score >= 1000)
+    {
+        multiplier = 1.1;
+    }
+    else
+    {
+        multiplier = 1.0;
+    }
+    score += 100 * multiplier;
+}
+
+void tetris_check()
+{
+    bool tetris = true;
+    for (int j = 0; j < COLS; ++j)
+    {
+        if (grid[ROWS - 1][j] == 0)
+        {
+            tetris = false;
+        }
+    }
+
+    if (tetris == true)
+    {
+        printf("TETRIS\n");
+        calculate_points();
+        for (int i = ROWS - 1; i > -1; i--)
+        {
+            for (int j = COLS - 1; j > -1; j--)
+            {
+                if (grid[i][j] == 2)
+                {
+                    grid[i + 1][j] = grid[i][j];
+                    grid[i][j] = 0;
+                }
+            }
+        }
+    }
 }
 
 void if_block_drop()
@@ -242,13 +245,32 @@ void run(HWND hwnd)
         }
     }
 
-    while (!collision)
+    /*while (!collision)
     {
         if_block_drop();
         tetris_check();
         update_grid(hwnd);
         Sleep(1000); // Adjust sleep time as needed
+    }*/
+
+    if (!collision)
+    {
+        if_block_drop();
+        tetris_check();
+        update_grid(hwnd);
     }
+    else
+    {
+        collision = false;
+        landed = true;
+    }
+
+    if (game_end)
+    {
+        stop_game(hwnd);
+    }
+    // handles only one game "tick" per call
+    // timer separate game logic from the message loop
 }
 
 /*void start_game(HWND hwnd)
@@ -324,17 +346,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:           // keyboard listener
         if (wParam == VK_LEFT) // left arrow key
         {
+            printf("left key detected\n");
             move_left();
         }
         else if (wParam == VK_RIGHT) // right arrow key
         {
+            printf("right key detected\n");
             move_right();
         }
         else if (wParam == VK_DOWN) // down arrow key
         {
-            // move_down();
+            printf("down key detected\n");
+            if_block_drop(); // has the same properties needed for move_down function
         }
-        // InvalidateRect(hwnd, NULL, TRUE);
+        InvalidateRect(hwnd, NULL, TRUE);
         update_grid(hwnd);
         break;
     case WM_TIMER: // timer separate game logic from the message loop
