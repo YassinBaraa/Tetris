@@ -18,6 +18,7 @@ const char g_szClassName[] = "myWindowClass";
 // PROBLEMS:
 //  colission detection algorthm needs to look at the entire piece at once not bit by bit.
 //          because it searches one bit by bit part of the block falls through
+// Calculate points function
 
 /*GRID CONFIG:
     0   empty space
@@ -88,6 +89,10 @@ bool check_collision()
     return false;
 }
 
+void rotate_block()
+{
+}
+
 void move_left()
 {
     for (int i = 0; i < ROWS; ++i)
@@ -122,21 +127,22 @@ void calculate_points()
 {
     if (score >= 5000)
     {
-        multiplier = 1.5;
+        multiplier = 2;
     }
     else if (score >= 2500)
     {
-        multiplier = 1.25;
+        multiplier = 1.5;
     }
     else if (score >= 1000)
     {
-        multiplier = 1.1;
+        multiplier = 1.25;
     }
     else
     {
         multiplier = 1.0;
     }
-    score += 100 * multiplier;
+    score += (100 * multiplier);
+    printf("%d\n", score);
 }
 
 void tetris_check()
@@ -216,7 +222,8 @@ void run(HWND hwnd)
     if (landed)
     {
         landed = false;
-        int value = rand() % (6 - 0 + 1) + 0;
+        // int value = rand() % (6 - 0 + 1) + 0;
+        int value = 0;
         switch (value)
         {
         case 0:
@@ -337,7 +344,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
 
         // Print the score
-        sprintf(buffer, "SCORE: %d", score);
+        sprintf(buffer, "SCORE: %4d", score);
         TextOut(hdc, 20, y + 20, buffer, strlen(buffer));
 
         EndPaint(hwnd, &ps);
@@ -346,18 +353,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:           // keyboard listener
         if (wParam == VK_LEFT) // left arrow key
         {
-            printf("left key detected\n");
+            // printf("left key detected\n");
             move_left();
         }
         else if (wParam == VK_RIGHT) // right arrow key
         {
-            printf("right key detected\n");
+            // printf("right key detected\n");
             move_right();
         }
         else if (wParam == VK_DOWN) // down arrow key
         {
-            printf("down key detected\n");
+            // printf("down key detected\n");
             if_block_drop(); // has the same properties needed for move_down function
+        }
+        else if (wParam == VK_SPACE)
+        {
+            // printf("rotation key detected\n");
+            rotate_block(); // has the same properties needed for move_down function
         }
         InvalidateRect(hwnd, NULL, TRUE);
         update_grid(hwnd);
